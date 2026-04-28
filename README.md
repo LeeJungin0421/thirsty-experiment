@@ -1,12 +1,12 @@
 https://leejungin0421.github.io/thirsty-experiment/free_association_main.html
 
 
-(prac) https://leejungin0421.github.io/thirsty-experiment/swallow_timer_practive_high_norating.html
+(prac) https://leejungin0421.github.io/thirsty-experiment/swallow_timer_practice_high_norating.html
 
 https://leejungin0421.github.io/thirsty-experiment/swallow_timer_high_main.html
 
 
-(prac) https://leejungin0421.github.io/thirsty-experiment/swallow_timer_practive_low_norating.html
+(prac) https://leejungin0421.github.io/thirsty-experiment/swallow_timer_practice_low_norating.html
 
 https://leejungin0421.github.io/thirsty-experiment/swallow_timer_low_main.html
 
