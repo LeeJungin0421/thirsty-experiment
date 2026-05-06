@@ -1,4 +1,4 @@
-https://leejungin0421.github.io/thirsty-experiment/free_association_pre.html
+https://leejungin0421.github.io/thirsty-experiment/free_association_pre_final.html
 
 https://leejungin0421.github.io/thirsty-experiment/free_association_main.html
 
