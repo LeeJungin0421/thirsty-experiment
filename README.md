@@ -3,7 +3,7 @@ https://leejungin0421.github.io/thirsty-experiment/free_association_pre_final.ht
 https://leejungin0421.github.io/thirsty-experiment/free_association_main.html
 
 
-
+/n
 
 
 [swallowing 600]
