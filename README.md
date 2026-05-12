@@ -3,7 +3,7 @@ https://leejungin0421.github.io/thirsty-experiment/free_association_pre_final.ht
 https://leejungin0421.github.io/thirsty-experiment/free_association_main.html
 
 
-/n
+
 
 
 [swallowing 600]
@@ -21,6 +21,10 @@ https://leejungin0421.github.io/thirsty-experiment/swallow_timer_low_main.html
 
 
 [swallowing 400]
+https://leejungin0421.github.io/thirsty-experiment/swallow_timer_high_4trial_6sip_save.html
+
+
+https://leejungin0421.github.io/thirsty-experiment/swallow_timer_low_4trial_6sip_save.html
 
 
 [google form]
