@@ -22,9 +22,11 @@ https://leejungin0421.github.io/thirsty-experiment/swallow_timer_low_8trial_5sip
 [swallowing 400]
 
 https://leejungin0421.github.io/thirsty-experiment/swallow_timer_high_4trial_6sip_save.html
+https://leejungin0421.github.io/thirsty-experiment/swallow_timer_high_4trial_6sip_nosave.html
 
 
 https://leejungin0421.github.io/thirsty-experiment/swallow_timer_low_4trial_6sip_save.html
+https://leejungin0421.github.io/thirsty-experiment/swallow_timer_low_4trial_6sip_nosave.html
 
 
 [google form]
