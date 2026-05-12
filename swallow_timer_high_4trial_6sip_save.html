@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Swallow Timer</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --surface: #ffffff; --border: rgba(0,0,0,0.09);
+    --text: #1a1a1a; --text-sub: #666;
+    --orange: #D85A30; --blue: #6A1B9A; --gray: #888780;
+    --green-done: #639922; --radius: 12px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --mono: 'SF Mono', 'Fira Mono', monospace;
+  }
+  body { background: var(--bg); font-family: var(--font); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0; margin: 0; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.6rem 1.8rem; width: 100%; max-width: 780px; margin-bottom: 1rem; }
+  .setup-screen { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; max-width: 780px; }
+  .setup-title { font-size: 17px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text-sub); text-align: center; margin-bottom: .4rem; }
+  .field { display: flex; flex-direction: column; gap: 5px; width: 100%; }
+  .field label { font-size: 16px; color: var(--text-sub); }
+  .field input { padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 18px; font-family: var(--font); color: var(--text); background: var(--bg); width: 100%; }
+  .field input:focus { outline: 2px solid var(--orange); border-color: transparent; }
+  .btn-start-main { width: 100%; padding: 14px; background: var(--orange); color: #fff; border: none; border-radius: 10px; font-size: 20px; font-weight: 600; font-family: var(--font); cursor: pointer; margin-top: .4rem; }
+  .btn-start-main:hover { background: #bf4f29; }
+  .timer-screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; width: 100vw; padding: 2rem; box-sizing: border-box; }
+  .phase-label { display: none; }
+  .status-txt { text-align: center; font-size: 36px; font-weight: 700; color: var(--text); height: 50px; margin-bottom: 1.4rem; line-height: 1.3; overflow: hidden; }
+  .cue-stage { display: flex; justify-content: center; align-items: center; height: 260px; margin-bottom: 0; }
+  .cue-circle { width: 140px; height: 140px; border-radius: 50%; transition: background .3s, opacity .3s; position: relative; }
+  .swallow-count { display: none; }
+
+  /* VAS - single item shown at a time */
+  .vas-wrap { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 700px; text-align: center; background: transparent; }
+  .vas-wrap.hidden { display: none; }
+  .fixation { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 80px; font-weight: 300; color: var(--text-sub); text-align: center; line-height: 1; }
+  .fixation.show { display: block; }
+  .vas-item { display: none; }
+  .vas-item.active { display: block; }
+  .vas-q { font-size: 26px; font-weight: 600; color: var(--text); margin-bottom: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .tag { display: inline-block; font-size: 13px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; padding: 2px 9px; border-radius: 99px; flex-shrink: 0; }
+  .tag-thirst { background: #E6F1FB; color: #185FA5; }
+  .tag-satis  { background: #EAF3DE; color: #3B6D11; }
+  .vas-labels { display: flex; justify-content: space-between; font-size: 18px; color: var(--text-sub); margin-bottom: 8px; }
+  .vas-slider { width: 100%; margin-bottom: 5px; accent-color: var(--orange); height: 36px; cursor: pointer; }
+  .vas-value { font-family: var(--mono); font-size: 20px; font-weight: 500; color: var(--text); text-align: right; }
+
+  .finish-msg  { text-align: center; font-size: 26px; font-weight: 600; color: var(--green-done); display: none; margin-bottom: .8rem; }
+  .stopped-msg { text-align: center; font-size: 22px; font-weight: 600; color: var(--orange); display: none; margin-bottom: .8rem; }
+    .btn-stop { padding: 8px 16px; border: 1.5px solid #e0b0a0; border-radius: 8px; background: var(--surface); font-size: 13px; font-family: var(--font); color: var(--orange); cursor: pointer; position: fixed; top: 16px; right: 16px; z-index: 9999; }
+  .btn-stop:hover { background: #fdf0ec; border-color: var(--orange); }
+  .btn-back { padding: 12px 36px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); font-size: 17px; font-family: var(--font); color: var(--text-sub); cursor: pointer; margin-top: .4rem; display: none; }
+  .btn-back:hover { background: #ede9e3; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 100; align-items: center; justify-content: center; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: var(--surface); border-radius: var(--radius); padding: 2rem; max-width: 340px; width: 90%; text-align: center; }
+  .modal h2 { font-size: 16px; font-weight: 600; margin-bottom: .6rem; }
+  .modal p  { font-size: 13px; color: var(--text-sub); line-height: 1.6; margin-bottom: 1.4rem; }
+  .modal-btns { display: flex; gap: 10px; justify-content: center; }
+  .modal-btns button { padding: 9px 22px; border-radius: 8px; font-size: 13px; font-family: var(--font); cursor: pointer; border: 1px solid var(--border); }
+  .btn-cancel-modal { background: var(--surface); color: var(--text-sub); }
+  .btn-cancel-modal:hover { background: #f0ede8; }
+  .btn-confirm-stop { background: var(--orange); color: #fff; border-color: var(--orange) !important; }
+  .btn-confirm-stop:hover { background: #bf4f29; }
+</style>
+</head>
+<body>
+
+<div class="setup-screen" id="setupScreen">
+  <div class="card">
+    <div class="setup-title">실험 시작</div>
+    <div style="height:.8rem;"></div>
+    <div class="field">
+      <label>참가자 ID</label>
+      <input type="text" id="participantId" placeholder="예: TWS001_TEST" />
+    </div>
+    <div style="height:.8rem;"></div>
+    <div class="field">
+      <label>Trial 수 (Swallow 횟수)</label>
+      <input type="number" id="trialCountInput" min="1" max="30" value="4" />
+    </div>
+    <div style="height:1rem;"></div>
+    <button class="btn-start-main" onclick="goToTimer()">시작</button>
+  </div>
+</div>
+
+<div class="timer-screen" id="timerScreen">
+  <div class="phase-label" id="phaseLabel"></div>
+  <div class="status-txt" id="statusTxt"></div>
+  <div class="swallow-count" id="swallowCount"></div>
+  <div class="cue-stage" id="cueStage">
+    <svg id="cueCircleSvg" width="140" height="140" viewBox="0 0 140 140" style="display:block;">
+      <defs>
+        <clipPath id="circleClip">
+          <circle cx="70" cy="70" r="65"/>
+        </clipPath>
+      </defs>
+      <!-- background circle -->
+      <circle id="cueBg" cx="70" cy="70" r="65" fill="#c8c5be" opacity="0.4"/>
+      <!-- pie fill: uses a path that gets updated by JS -->
+      <path id="cueFill" d="" fill="#B39DDB" opacity="0" clip-path="url(#circleClip)"/>
+    </svg>
+  </div>
+
+  <!-- VAS: 두 항목 분리, 한 번에 하나씩 표시 -->
+  <div class="vas-wrap hidden" id="vasWrap" style="max-width:520px;">
+    <div class="vas-item" id="vasItem0">
+      <div class="vas-q">지금 얼마나 목이 마르신가요?</div>
+      <div class="vas-labels"><span>전혀 목이 마르지 않음</span><span>매우 목이 마름</span></div>
+      <input type="range" class="vas-slider" id="vasThirst" min="0" max="100" value="0" oninput="showNextBtn()" onmouseup="showNextBtn()" ontouchend="showNextBtn()" />
+      
+    </div>
+    <div class="vas-item" id="vasItem1">
+      <div class="vas-q">물을 마시면서 느낀 쾌감의 정도를 표시해주세요</div>
+      <div class="vas-labels"><span>쾌감 없음</span><span>매우 강한 쾌감</span></div>
+      <input type="range" class="vas-slider" id="vasSatis" min="0" max="100" value="0" oninput="showNextBtn()" onmouseup="showNextBtn()" ontouchend="showNextBtn()" />
+      
+    </div>
+  </div>
+
+  <button id="nextRatingBtn" onclick="onSliderMoved()" style="display:block;margin:4px auto 0;padding:12px 48px;background:var(--orange);color:#fff;border:none;border-radius:10px;font-size:20px;font-family:var(--font);font-weight:600;cursor:pointer;display:none;z-index:50;">다음</button>
+  <div class="fixation" id="fixation">+</div>
+  <div class="finish-msg"  id="finishMsg">모든 Trial 완료! 수고하셨습니다 🎉</div>
+  <div class="stopped-msg" id="stoppedMsg">실험이 중단되었습니다.<br>지금까지의 데이터가 저장되었어요.</div>
+  <button class="btn-stop" id="stopBtn" onclick="askStop()">실험 중단</button>
+  <button class="btn-back" id="backBtn" onclick="backToSetup()">← 처음으로</button>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>실험을 중단할까요?</h2>
+    <p id="modalDesc">지금까지 완료된 데이터는<br>Google Sheets에 저장됩니다.</p>
+    <div class="modal-btns">
+      <button class="btn-cancel-modal" onclick="closeModal()">계속하기</button>
+      <button class="btn-confirm-stop" onclick="confirmStop()">중단 및 저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx1kTPPlR6xnMk5WYbpquDcYZfjRLdMPhcoHJY2VSxWJ1FdsrbtdcSZz_TpI493WbJLug/exec';
+
+/*
+  구조: Baseline Rating -> [Jitter -> REST -> Swallow -> Jitter -> Rating(갈증5s→만족감5s)] x N
+  - Rating은 갈증(5초) / 만족감(5초) 두 화면으로 분리
+  - REST 마지막 5초: 카운트다운 + 5 뜰 때 비프음
+  - Rating 앞뒤 jitter: 2~5초 랜덤
+*/
+
+// vasIndex: 0=갈증, 1=만족감 — counterbalance로 순서 결정
+var vasOrder = [0, 1]; // 홀수 ID: [0,1](갈증→만족감), 짝수 ID: [1,0](만족감→갈증)
+
+function makeRatingPhase(type, slot) {
+  // slot 0 = 먼저 나오는 항목, slot 1 = 나중에 나오는 항목
+  return { name: type === 'baseline' ? 'Baseline' : 'Rating', key: 'rating', ratingType: type, vasIndex: type === 'baseline' ? 0 : vasOrder[slot], color: '#D85A30', cue: false, duration: 10 };
+}
+
+const PHASE_SWALLOW = { name: 'Swallow', key: 'swallow', color: '#6A1B9A', cue: true, duration: 9.0, cueInterval: 1.5, cueCount: 6 };
+const PHASE_REST    = { name: 'Rest',    key: 'rest',    color: '#888780', cue: false, duration: 30 };
+
+var PHASES = [];
+var timer = null, running = false, currentPhase = 0, elapsed = 0;
+var cueState = false, cueTimer = null, participantId = '', totalTrials = 4;
+var currentTrial = 1;
+var ratingAnswered = false;
+var experimentStartTime = null, experimentEndTime = null;
+var audioCtx = null;
+
+function buildPhases(n) {
+  PHASES = [makeRatingPhase('baseline', 0)]; // baseline: 갈증만
+  for (var i = 0; i < n; i++) {
+    // Jitter B → 대기 → Swallow → Jitter A → Rating
+    var jitterB = 3 + Math.random() * 2; // 3~5초
+    var jitterA = 5 - jitterB;            // 0~2초
+    PHASES.push({ name: 'Jitter', key: 'jitter', color: '#888780', cue: false, duration: jitterB });
+    PHASES.push(PHASE_REST);
+    PHASES.push(PHASE_SWALLOW);
+    PHASES.push({ name: 'Jitter', key: 'jitter', color: '#888780', cue: false, duration: jitterA });
+    PHASES.push(makeRatingPhase('post-swallow', 0));
+    PHASES.push(makeRatingPhase('post-swallow', 1));
+  }
+}
+
+function playBeep() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    var osc = audioCtx.createOscillator();
+    var gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.frequency.value = 880;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+    osc.start(audioCtx.currentTime);
+    osc.stop(audioCtx.currentTime + 0.3);
+  } catch(e) { console.warn('beep failed', e); }
+}
+
+function goToTimer() {
+  participantId = document.getElementById('participantId').value.trim() || 'unknown';
+  totalTrials = Math.max(1, Math.min(30, parseInt(document.getElementById('trialCountInput').value) || 4));
+  // counterbalance: 참가자 ID 끝 숫자 홀수=갈증먼저, 짝수=만족감먼저
+  var idNum = parseInt(participantId.replace(/[^0-9]/g, '')) || 1;
+  vasOrder = (idNum % 2 === 1) ? [0, 1] : [1, 0];
+  buildPhases(totalTrials);
+  currentPhase = 0; elapsed = 0; currentTrial = 1;
+  experimentStartTime = new Date(); experimentEndTime = null;
+  // init audio context on user gesture
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('timerScreen').style.display = 'flex';
+  running = true;
+  applyPhaseVisual(); tick();
+}
+
+function backToSetup() {
+  running = false; clearTimeout(timer); stopCue();
+  currentPhase = 0; elapsed = 0; currentTrial = 1;
+  document.getElementById('timerScreen').style.display = 'none';
+  document.getElementById('setupScreen').style.display = 'flex';
+  document.getElementById('finishMsg').style.display = 'none';
+  document.getElementById('stoppedMsg').style.display = 'none';
+  document.getElementById('stopBtn').style.display = '';
+  document.getElementById('backBtn').style.display = 'none';
+  document.getElementById('statusTxt').textContent = '';
+  document.getElementById('statusTxt').style.color = '';
+  document.getElementById('phaseLabel').textContent = '';
+  setCircleSolid('#c8c5be', '0.3'); showVAS(false);
+}
+
+function askStop() { document.getElementById('modalOverlay').classList.add('show'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+function confirmStop() {
+  closeModal();
+  var phase = PHASES[currentPhase];
+  if (phase.key === 'rating' && elapsed > 0) saveVAS(true);
+  doStop();
+}
+function doStop() {
+  running = false; clearTimeout(timer); stopCue(); showVAS(false);
+  experimentEndTime = new Date();
+
+  document.getElementById('phaseLabel').textContent = '중단됨';
+  document.getElementById('statusTxt').textContent = '';
+  document.getElementById('statusTxt').style.color = '';
+  document.getElementById('stoppedMsg').style.display = 'block';
+  document.getElementById('stopBtn').style.display = 'none';
+  document.getElementById('backBtn').style.display = '';
+  setCircleSolid('#c8c5be', '0.3');
+}
+
+function stopCue() { if (cueTimer) { clearInterval(cueTimer); cueTimer = null; } }
+
+function startCue(color, intervalSec, cueCount) {
+  stopCue();
+  var ms = (intervalSec || 1) * 1000;
+  var count = 0;
+  var CIRC = 408.41; // 2*pi*65
+  var bg   = document.getElementById('cueBg');
+  var fill = document.getElementById('cueFill');
+  var fillAnim = null;
+
+  // reset
+  bg.setAttribute('fill', '#c8c5be'); bg.setAttribute('opacity', '0.4');
+  fill.setAttribute('stroke', '#B39DDB');
+  fill.setAttribute('stroke-dashoffset', CIRC);
+  fill.setAttribute('d', ''); fill.setAttribute('opacity', '0');
+
+  function getPieD(p) {
+    if (p <= 0) return '';
+    if (p >= 1) return 'M70,70 m0,-65 a65,65 0 1,1 -0.001,0 Z';
+    var angle = p * 2 * Math.PI;
+    var x = 70 + 65 * Math.sin(angle);
+    var y = 70 - 65 * Math.cos(angle);
+    var large = angle > Math.PI ? 1 : 0;
+    return 'M70,70 L70,5 A65,65 0 ' + large + ',1 ' + x.toFixed(3) + ',' + y.toFixed(3) + ' Z';
+  }
+
+  function startFillAnim(duration, fillColor, onDone) {
+    var start = null;
+    fill.setAttribute('fill', fillColor);
+    fill.setAttribute('opacity', '1');
+    if (fillAnim) cancelAnimationFrame(fillAnim);
+    function step(ts) {
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / duration, 1);
+      fill.setAttribute('d', getPieD(p));
+      if (p < 1) { fillAnim = requestAnimationFrame(step); }
+      else { if (onDone) onDone(); }
+    }
+    fillAnim = requestAnimationFrame(step);
+  }
+
+  function resetFill() {
+    if (fillAnim) cancelAnimationFrame(fillAnim);
+    fill.setAttribute('d', '');
+    fill.setAttribute('opacity', '0');
+    bg.setAttribute('fill', '#c8c5be'); bg.setAttribute('opacity', '0.4');
+  }
+
+  function doFlash() {
+    count++;
+    playBeep();
+    var ordinals = ['첫 번째 목넘김','두 번째 목넘김','세 번째 목넘김','네 번째 목넘김','다섯 번째 목넘김','여섯 번째 목넘김'];
+    document.getElementById('statusTxt').textContent = ordinals[count - 1] || '';
+    document.getElementById('statusTxt').style.color = '#6A1B9A';
+    bg.setAttribute('fill', '#6A1B9A'); bg.setAttribute('opacity', '1');
+    fill.setAttribute('d', ''); fill.setAttribute('opacity', '0');
+    var isLast = cueCount && count >= cueCount;
+    setTimeout(function() {
+      bg.setAttribute('fill', '#c8c5be'); bg.setAttribute('opacity', '0.3');
+      if (isLast) {
+        resetFill();
+        document.getElementById('statusTxt').textContent = '';
+        document.getElementById('statusTxt').style.color = '';
+        stopCue(); setTimeout(function() { advancePhase(); }, 300);
+      } else {
+        startFillAnim(ms - 700, '#B39DDB', null);
+      }
+    }, 700);
+  }
+
+  // 시작 전 연보라 채우기 (첫 신호까지 대기)
+  startFillAnim(ms, '#B39DDB', null);
+  doFlash();
+  cueTimer = setInterval(function() { if (count < cueCount) doFlash(); }, ms);
+}
+
+function setCircleSolid(color, opacity) {
+  stopCue();
+  var bg = document.getElementById('cueBg');
+  var fill = document.getElementById('cueFill');
+  if (!bg) return;
+  bg.setAttribute('fill', color); bg.setAttribute('opacity', opacity);
+  fill.setAttribute('d', ''); fill.setAttribute('opacity', '0');
+}
+
+function showVAS(show, vasIndex) {
+  var v = document.getElementById('vasWrap');
+  var fix = document.getElementById('fixation');
+  if (show) {
+    ratingAnswered = false;
+    v.classList.remove('hidden');
+    if (fix) fix.classList.remove('show');
+    var nb = document.getElementById('nextRatingBtn'); if (nb) nb.style.display = 'none';
+    document.getElementById('vasItem0').classList.toggle('active', vasIndex === 0);
+    document.getElementById('vasItem1').classList.toggle('active', vasIndex === 1);
+    if (vasIndex === 0) {
+      document.getElementById('vasThirst').value = 0;
+      moveCursorToSlider('vasThirst');
+    } else {
+      document.getElementById('vasSatis').value = 0;
+      moveCursorToSlider('vasSatis');
+    }
+  } else {
+    v.classList.add('hidden');
+    if (fix) fix.classList.remove('show');
+    document.getElementById('vasItem0').classList.remove('active');
+    document.getElementById('vasItem1').classList.remove('active');
+    var nb = document.getElementById('nextRatingBtn'); if (nb) nb.style.display = 'none';
+  }
+}
+
+function showNextBtn() {
+  var nb = document.getElementById('nextRatingBtn');
+  if (nb && !ratingAnswered) nb.style.display = 'inline-block';
+}
+
+function onSliderMoved() {
+  if (!ratingAnswered) {
+    ratingAnswered = true;
+    var nb = document.getElementById('nextRatingBtn'); if (nb) nb.style.display = 'none';
+    var v = document.getElementById('vasWrap');
+    var fix = document.getElementById('fixation');
+    v.classList.add('hidden');
+    if (fix) fix.classList.add('show');
+  }
+}
+
+function applyPhaseVisual() {
+  var p = PHASES[currentPhase];
+  var isRating = p.key === 'rating';
+  showVAS(isRating, isRating ? p.vasIndex : 0);
+  var el = document.getElementById('swallowCount');
+  if (el) el.textContent = '';
+  var stage = document.getElementById('cueStage');
+  if (stage) { stage.style.visibility = isRating ? 'hidden' : 'visible'; stage.style.display = 'flex'; }
+  if (p.cue) {
+    setCircleSolid('#B39DDB', '0.8'); // 준비: 하늘으로 시작
+    startCue(p.color, p.cueInterval || 1, p.cueCount || 0);
+  } else if (isRating) {
+    setCircleSolid('#c8c5be', '0');
+  } else if (p.key === 'rest' || p.key === 'jitter' || p.key === 'jitterB' || p.key === 'jitterA') {
+    setCircleSolid('#c8c5be', '0.4'); // 대기: 회색
+    document.getElementById('statusTxt').style.color = '';
+  } else {
+    setCircleSolid('#c8c5be', '0.2');
+    document.getElementById('statusTxt').style.color = '';
+  }
+}
+
+function saveToSheets(row) {
+  try {
+    var form = document.createElement('form');
+    form.method = 'POST'; form.action = SHEETS_URL; form.target = 'save_iframe';
+    Object.keys(row).forEach(function(k) {
+      var inp = document.createElement('input');
+      inp.type = 'hidden'; inp.name = k; inp.value = row[k] || '';
+      form.appendChild(inp);
+    });
+    if (!document.getElementById('save_iframe')) {
+      var ifr = document.createElement('iframe');
+      ifr.name = 'save_iframe'; ifr.id = 'save_iframe'; ifr.style.display = 'none';
+      document.body.appendChild(ifr);
+    }
+    document.body.appendChild(form); form.submit();
+    setTimeout(function() { if (form.parentNode) form.parentNode.removeChild(form); }, 3000);
+  } catch(e) { console.warn('save failed', e); }
+}
+
+var savedFirstVal = 50; // 먼저 나온 항목 값 임시 저장
+
+function saveVAS(interrupted) {
+  var phase = PHASES[currentPhase];
+  // 두 번째 항목(slot 1) 끝날 때 두 값 함께 저장
+  if (phase.vasIndex === vasOrder[1] || interrupted) {
+    var thirstVal, satisVal;
+    if (vasOrder[0] === 0) {
+      // 갈증 먼저: savedFirstVal=갈증, 현재=만족감
+      thirstVal = savedFirstVal;
+      satisVal  = parseInt(document.getElementById('vasSatis').value);
+    } else {
+      // 만족감 먼저: savedFirstVal=만족감, 현재=갈증
+      thirstVal = parseInt(document.getElementById('vasThirst').value);
+      satisVal  = savedFirstVal;
+    }
+    saveToSheets({
+      timestamp:    new Date().toISOString(),
+      participant:  participantId,
+      trial:        currentTrial,
+      thirst:       thirstVal,
+      satisfaction: satisVal,
+      note:         interrupted ? 'interrupted' : ''
+    });
+  }
+}
+
+function moveCursorToSlider(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.focus();
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+var TICK_MS = 500;
+var beepFired = false;
+
+function tick() {
+  if (!running) return;
+  var phase = PHASES[currentPhase];
+  var restRemaining = phase.duration - elapsed;
+
+  // REST: 마지막 3초 카운트다운
+  if (phase.key === 'rest' && restRemaining <= 3 && restRemaining > 0) {
+    document.getElementById('statusTxt').textContent = Math.ceil(restRemaining);
+    document.getElementById('statusTxt').style.color = '#D85A30';
+    document.getElementById('cueBg').setAttribute('fill','#B39DDB'); document.getElementById('cueBg').setAttribute('opacity','0.8');
+  } else if (phase.key === 'swallow') {
+    // swallow 구간은 startCue가 관리
+  } else {
+    document.getElementById('statusTxt').style.color = '';
+    document.getElementById('statusTxt').textContent =
+      phase.key === 'rating'  ? '' :
+      phase.key === 'rest'    ? '' :
+      phase.key === 'jitter'  ? '' : '';
+    if (phase.key === 'rest') {
+      document.getElementById('cueBg').setAttribute('fill','#c8c5be'); document.getElementById('cueBg').setAttribute('opacity','0.4');
+    }
+  }
+  document.getElementById('phaseLabel').textContent =
+    phase.ratingType === 'baseline' ? 'Baseline' :
+    phase.key === 'swallow'         ? 'Swallow'  :
+    phase.key === 'rest'            ? '휴식'     :
+    phase.key === 'jitter'          ? ''         : 'Rating';
+
+  elapsed += 0.5;
+  if (elapsed >= phase.duration && phase.key !== 'swallow') {
+    advancePhase(); return;
+  }
+  timer = setTimeout(tick, TICK_MS);
+}
+
+function advancePhase() {
+  clearTimeout(timer);
+  var phase = PHASES[currentPhase];
+  // 카운트다운 숫자 즉시 제거
+  if (phase.key === 'rest' || phase.key === 'jitter') {
+    document.getElementById('statusTxt').textContent = '';
+    document.getElementById('statusTxt').style.color = '';
+  }
+
+  // 첫 번째 항목 끝날 때 값 임시 저장 (post-swallow용)
+  if (phase.key === 'rating' && phase.ratingType !== 'baseline' && phase.vasIndex === vasOrder[0]) {
+    if (vasOrder[0] === 0) {
+      savedFirstVal = parseInt(document.getElementById('vasThirst').value);
+    } else {
+      savedFirstVal = parseInt(document.getElementById('vasSatis').value);
+    }
+  }
+
+  // baseline: thirst만 저장
+  if (phase.key === 'rating' && phase.ratingType === 'baseline') {
+    currentTrial = 1;
+    saveToSheets({
+      timestamp:    new Date().toISOString(),
+      participant:  participantId,
+      trial:        0,
+      thirst:       parseInt(document.getElementById('vasThirst').value),
+      satisfaction: '',
+      note:         'baseline'
+    });
+  }
+
+  // post-swallow 두 번째 항목 끝날 때 저장
+  if (phase.key === 'rating' && phase.ratingType !== 'baseline' && phase.vasIndex === vasOrder[1]) {
+    saveVAS(false);
+    currentTrial++;
+  }
+
+  elapsed = 0; currentPhase++;
+  if (currentPhase >= PHASES.length) {
+    // 마지막 rating 저장이 완료될 때까지 잠시 대기
+    setTimeout(finishAll, 1000);
+    return;
+  }
+  applyPhaseVisual(); tick();
+}
+
+function finishAll() {
+  running = false; stopCue(); clearTimeout(timer);
+  experimentEndTime = new Date();
+
+  document.getElementById('phaseLabel').textContent = '완료';
+  document.getElementById('statusTxt').textContent = '';
+  document.getElementById('statusTxt').style.color = '';
+  document.getElementById('finishMsg').style.display = 'block';
+  document.getElementById('stopBtn').style.display = 'none';
+  document.getElementById('backBtn').style.display = '';
+  setCircleSolid('#639922', '0.8'); showVAS(false);
+}
+</script>
+</body>
+</html>
