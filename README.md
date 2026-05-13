@@ -2,7 +2,9 @@ https://leejungin0421.github.io/thirsty-experiment/free_association_pre_final.ht
 
 https://leejungin0421.github.io/thirsty-experiment/free_association_main.html
 
+https://leejungin0421.github.io/thirsty-experiment/free_association_pre_final2.html
 
+https://leejungin0421.github.io/thirsty-experiment/free_association_main2.html
 
 
 [swallowing 600]
