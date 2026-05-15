@@ -16,9 +16,9 @@ https://leejungin0421.github.io/thirsty-experiment/free_association_main2.html
 https://leejungin0421.github.io/thirsty-experiment/swallow_timer_high_8trial_5sip_gradual_save.html
 
 
-(prac) https://leejungin0421.github.io/thirsty-experiment/swallow_timer_low_8trial_5sip_gradual_nosave.html
+(prac) https://leejungin0421.github.io/thirsty-experiment/swallow_timer_low__8trial_5sip_gradual_nosave.html
 
-https://leejungin0421.github.io/thirsty-experiment/swallow_timer_low_8trial_5sip_gradual_save.html
+https://leejungin0421.github.io/thirsty-experiment/swallow_timer_low__8trial_5sip_gradual_save.html
 
 
 
