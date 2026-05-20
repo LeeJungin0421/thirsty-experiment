@@ -1,8 +1,8 @@
 [FAST]
 
-https://leejungin0421.github.io/thirsty-experiment/free_association_pre_final2.html
+https://leejungin0421.github.io/thirsty-experiment/free_association_pre_final3.html
 
-https://leejungin0421.github.io/thirsty-experiment/free_association_main2.html
+https://leejungin0421.github.io/thirsty-experiment/free_association_main3.html
 
 
 [oral wetting]
@@ -11,6 +11,7 @@ https://leejungin0421.github.io/thirsty-experiment/oral_wetting_high.html
 
 https://leejungin0421.github.io/thirsty-experiment/oral_wetting_low.html
 
+https://leejungin0421.github.io/thirsty-experiment/free_association_intermission.html
 
 
 [swallowing 200]
