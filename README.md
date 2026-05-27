@@ -9,7 +9,7 @@ https://leejungin0421.github.io/thirsty-experiment/free_association_main3.html
 
 [oral wetting]
 
-https://leejungin0421.github.io/thirsty-experiment/oral_wetting_4.5s.html
+https://leejungin0421.github.io/thirsty-experiment/oral_wetting_4_5s.html
 
 https://leejungin0421.github.io/thirsty-experiment/oral_wetting_4.5s_nosave.html
 
