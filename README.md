@@ -1,5 +1,7 @@
 [FAST]
 
+https://leejungin0421.github.io/thirsty-experiment/free_association_all.html
+
 https://leejungin0421.github.io/thirsty-experiment/free_association_pre_final3.html
 
 https://leejungin0421.github.io/thirsty-experiment/free_association_main3.html
@@ -18,6 +20,17 @@ https://leejungin0421.github.io/thirsty-experiment/oral_wetting_low_nosave.html
 
 
 https://leejungin0421.github.io/thirsty-experiment/free_association_intermission.html
+
+
+[swallowing 10trials 4sips]
+
+(prac) https://leejungin0421.github.io/thirsty-experiment/swallow_timer_high_10trial_4sip_nosave.html
+
+https://leejungin0421.github.io/thirsty-experiment/swallow_timer_high_10trial_4sip_save.html
+
+(prac) https://leejungin0421.github.io/thirsty-experiment/swallow_timer_low_10trial_4sip_nosave.html
+
+https://leejungin0421.github.io/thirsty-experiment/swallow_timer_low_10trial_4sip_nosave.html
 
 
 [swallowing 200]
