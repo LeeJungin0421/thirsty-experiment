@@ -36,7 +36,7 @@ https://leejungin0421.github.io/thirsty-experiment/swallow_timer_high_10trial_4s
 
 (prac) https://leejungin0421.github.io/thirsty-experiment/swallow_timer_low_10trial_4sip_nosave.html
 
-https://leejungin0421.github.io/thirsty-experiment/swallow_timer_low_10trial_4sip_nosave.html
+https://leejungin0421.github.io/thirsty-experiment/swallow_timer_low_10trial_4sip_save.html
 
 
 [swallowing 200]
