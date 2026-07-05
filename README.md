@@ -5,6 +5,20 @@ https://leejungin0421.github.io/thirsty-experiment/free_association_all.html
 https://leejungin0421.github.io/thirsty-experiment/free_association_all3.html
 
 
+[swallowing only high]
+
+(prac) https://leejungin0421.github.io/thirsty-experiment/swallow_only_timer_high_final_nosave.html
+
+https://leejungin0421.github.io/thirsty-experiment/swallow_only_timer_high_final_save.html
+
+
+[swallowing only low]
+
+(prac) https://leejungin0421.github.io/thirsty-experiment/swallow_only_timer_low_final_nosave.html
+
+https://leejungin0421.github.io/thirsty-experiment/swallow_only_timer_low_final_save.html
+
+
 [oral wetting]
 
 (prac) https://leejungin0421.github.io/thirsty-experiment/oral_wetting_final_nosave.html
